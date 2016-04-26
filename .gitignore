@@ -1,0 +1,9 @@
+*.snap
+parts/(?!plugins)
+stage
+snap
+work
+*~
+*/*~
+*/__pycache__
+

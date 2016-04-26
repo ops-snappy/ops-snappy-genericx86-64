@@ -1,0 +1,11 @@
+name: openswitch-alphanetworks-genericx86-64
+version: 2.0.0
+summary: OpenSwitch NOS for a Generic x86-64 host.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Generic x86-64 host.
+icon: OpenSwitchLogo.png
+
+parts:
+  openswitch:
+    plugin: x-make
+    source: https://github.com/ops-snappy/ops-build.git
+    precmd: [ 'bash', '-c', 'test -f .platform || make configure genericx86-64' ]
