@@ -1,9 +1,9 @@
 *.snap
-parts/(?!plugins)
+parts/openswitch
 stage
 snap
 work
 *~
 */*~
-*/__pycache__
+parts/plugins/__pycache__
 

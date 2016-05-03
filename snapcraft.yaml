@@ -1,11 +1,12 @@
-name: openswitch-alphanetworks-genericx86-64
-version: 2.0.0
-summary: OpenSwitch NOS for a Generic x86-64 host.
-description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Generic x86-64 host.
-icon: OpenSwitchLogo.png
+name: openswitch-alphanetworks-snx-60a0-486f
+version: 0.3.0-1
+summary: OpenSwitch NOS for an alphanetworks-snx-60a0-486f host.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F host.
 
 parts:
   openswitch:
-    plugin: x-make
-    source: https://github.com/ops-snappy/ops-build.git
-    precmd: [ 'bash', '-c', 'test -f .platform || make configure genericx86-64' ]
+    plugin: x-openswitch
+#    source: https://github.com/ops-snappy/ops-build.git
+    source: /work/ops-build
+    platform: alphanetworks-snx-60a0-486f
+    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1 ]
