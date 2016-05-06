@@ -1,5 +1,6 @@
 *.snap
 parts/openswitch
+parts/opennsl
 stage
 snap
 work
