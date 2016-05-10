@@ -15,7 +15,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         schema['properties']['platform'] = {
             'type': 'string',
         }
-        schema['properties']['kernelversion'] = {
+        schema['properties']['headerspart'] = {
             'type': 'string',
         }
         schema['properties']['cdppart'] = {
@@ -31,30 +31,19 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         """
         self.build_packages.append('make')
 
-        self.downloaddir = os.path.join(self.partdir, 'download')
-        self.headersdir = os.path.join(self.downloaddir, 'linux-headers')
         if self.options.cdppart:
             self.cdpdir = os.path.join(project.parts_dir, self.options.cdppart)
-            if self.options.kernelversion:
-                self.downloaddir = os.path.join(self.partdir, 'download')
-                self.headersdir = os.path.join(self.downloaddir, 'linux-headers')
+            if self.options.headerspart:
+                self.headersdir = os.path.join(project.parts_dir, self.options.headerspart)
+                """ TODO - extract kernel version from headers part
+                """
+                self.kernelversion = '4.4.0-21-generic'
             else:
-                raise ValueError('CDP requires kernelversion')
+                raise ValueError('CDP requires headerspart')
         else:
             self.cdpdir = None
-                
-
-    def pull(self):
-        super().pull()
-        if self.cdpdir != None:
-            if os.path.exists(self.downloaddir):
-                shutil.rmtree(self.downloaddir)
-            os.mkdir(self.downloaddir)
-            os.mkdir(self.headersdir)
-            self.run(['apt', 'download', 'linux-headers-' + self.options.kernelversion], cwd=self.downloaddir)
-            debfiles = glob.glob(os.path.join(self.downloaddir, '*.deb'))
-            self.run(['dpkg', '-x'] + debfiles + [self.headersdir])
-            self.run(['rm', '-f'] + debfiles)
+            self.headersdir = None
+            self.kernelversion = None
 
     def build(self):
 
@@ -99,5 +88,3 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
 
         if os.path.exists(self.installdir):
             shutil.rmtree(self.installdir)
-        if os.path.exists(self.downloaddir):
-            shutil.rmtree(self.downloaddir)

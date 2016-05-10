@@ -1,0 +1,3 @@
+!BuildState
+properties: {make-parameters: null, makefile: null}
+schema_properties: [makefile, make-parameters]

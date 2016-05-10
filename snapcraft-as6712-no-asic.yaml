@@ -1,0 +1,41 @@
+name: openswitch-as6712-no-asic
+version: 0.3.0-1
+summary: OpenSwitch NOS for an as6712 host with a simulated ASIC.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the as6712 host and a simulated ASIC.
+
+apps:
+  start-openswitch:
+    command: usr/sbin/start-openswitch
+    plugs: [ networking ]
+  stop-openswitch:
+    command: usr/sbin/stop-openswitch
+    plugs: [ networking ]
+  ovs-appctl:
+    command: usr/bin/ovs-appctl
+    plugs: [ networking ]
+  ovsdb-tool:
+    command: usr/bin/ovsdb-tool
+    plugs: [ networking ]
+  ovsdb-client:
+    command: usr/bin/ovsdb-client
+    plugs: [ networking ]
+
+plugs:
+# TODO - come up with a better security profile for the daemons.
+  networking:
+    interface: old-security
+    security-template: unconfined
+
+parts:
+
+  ops-init:
+    plugin: make
+    source: src/ops-init
+
+  openswitch:
+    plugin: x-openswitch
+#    source: https://github.com/ops-snappy/ops-build.git
+    source: /work/ops-build
+    platform: as6712-no-asic
+    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1 ]
+    after: [ ops-init ]

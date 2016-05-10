@@ -1,0 +1,6 @@
+!StripState
+dependency_paths: !!set {}
+directories: !!set {usr: null, usr/sbin: null}
+files: !!set {usr/sbin/start-openswitch: null, usr/sbin/stop-openswitch: null}
+properties:
+  snap: ['*']
