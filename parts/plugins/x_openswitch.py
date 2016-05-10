@@ -27,8 +27,6 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
     def __init__(self, name, options, project):
         super().__init__(name, options, project)
 
-        """ With pre-built, make sure configured platform matches yaml file.
-        """
         self.build_packages.append('make')
 
         if self.options.cdppart:
@@ -37,7 +35,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
                 self.headersdir = os.path.join(project.parts_dir, self.options.headerspart)
                 """ TODO - extract kernel version from headers part
                 """
-                self.kernelversion = '4.4.0-21-generic'
+                self.kernelversion = '4.4.0-22-generic'
             else:
                 raise ValueError('CDP requires headerspart')
         else:
