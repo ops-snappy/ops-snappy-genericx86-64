@@ -1,10 +1,11 @@
 *.snap
 parts/openswitch
 parts/opennsl
+parts/linux-headers
 stage
 snap
 work
 *~
-*/*~
+*/*/*~
 parts/plugins/__pycache__
 
