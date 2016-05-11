@@ -1,7 +1,7 @@
 *.snap
 parts/openswitch
 parts/opennsl
-parts/linux-headers
+parts/ops-init
 stage
 snap
 work

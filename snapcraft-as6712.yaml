@@ -1,7 +1,7 @@
-name: openswitch-alphanetworks-snx-60a0-486f
+name: openswitch-as6712
 version: 0.3.0-2
-summary: OpenSwitch NOS for an alphanetworks-snx-60a0-486f host.
-description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F host.
+summary: OpenSwitch NOS for an as6712 host.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Accton as6712 host.
 
 apps:
   start-openswitch:
@@ -42,7 +42,7 @@ parts:
     plugin: x-openswitch
 #    source: https://github.com/ops-snappy/ops-build.git
     source: /work/ops-build
-    platform: alphanetworks-snx-60a0-486f
+    platform: as6712
     linuxheaders: /usr/src/linux-headers-4.4.0-22-generic
     cdppart: opennsl
     stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1 ]

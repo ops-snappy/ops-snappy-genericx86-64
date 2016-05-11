@@ -15,13 +15,15 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         schema['properties']['platform'] = {
             'type': 'string',
         }
-        schema['properties']['headerspart'] = {
+        schema['properties']['linuxheaders'] = {
             'type': 'string',
         }
         schema['properties']['cdppart'] = {
             'type': 'string',
         }
         schema['required'].append('platform')
+        schema['pull-properties'].extend(
+            ['cdppart'])
         return schema
 
     def __init__(self, name, options, project):
@@ -30,18 +32,14 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         self.build_packages.append('make')
 
         if self.options.cdppart:
-            self.cdpdir = os.path.join(project.parts_dir, self.options.cdppart)
-            if self.options.headerspart:
-                self.headersdir = os.path.join(project.parts_dir, self.options.headerspart)
-                """ TODO - extract kernel version from headers part
-                """
-                self.kernelversion = '4.4.0-22-generic'
+            self.cdpdir = os.path.join(project.parts_dir, self.options.cdppart + '/build')
+            if self.options.linuxheaders:
+                self.headersdir = self.options.linuxheaders
             else:
-                raise ValueError('CDP requires headerspart')
+                raise ValueError('CDP requires linuxheaders')
         else:
             self.cdpdir = None
             self.headersdir = None
-            self.kernelversion = None
 
     def build(self):
 
@@ -65,7 +63,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         """Must rebuild the opennsl for the target system
         """
         if self.cdpdir != None:
-            self.run(['make', 'host-opennsl', 'CDPDIR=' + self.cdpdir, 'LINUX_HEADERS=' + self.headersdir, 'KERNEL_VERSION=' + self.options.kernelversion])
+                self.run(['make', 'host-opennsl', 'CDPDIR=' + self.cdpdir, 'LINUX_SRC=' + self.headersdir, 'LINUX_KBUILD=' + self.headersdir])
 
         """ Since we are pre-building, just have to install into installdir
         """
