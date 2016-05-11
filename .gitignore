@@ -1,3 +1,4 @@
+snapcraft.yaml
 *.snap
 parts/openswitch
 parts/opennsl
