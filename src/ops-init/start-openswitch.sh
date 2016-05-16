@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Slow down startup so can see what's happening easier
+STARTDELAY=0
+
 # Syslog settings
 LOGSYSLOG="SYSLOG"
 LOGCONSOLE="CONSOLE"
@@ -9,7 +12,7 @@ SYSLOGDBG="-v${LOGSYSLOG}:${LOGLVLDBG}"
 SYSLOGINFO="-v${LOGSYSLOG}:${LOGLVLINFO}"
 CONSDBG="-v${LOGCONSOLE}:${LOGLVLDBG}"
 CONSINFO="-v${LOGCONSOLE}:${LOGLVLINFO}"
-LOGDEFAULT=${CONSINFO}
+LOGDEFAULT=${CONSDBG}
 
 # Required directories
 DBDIR=$SNAP_DATA/var/run/openvswitch
@@ -47,28 +50,6 @@ done
 $SBINDIR/ops-init
 
 # Create the databases if they don't exist.
-echo OUTDIR=$SNAP_DATA
-echo STARTING $BINDIR/ovsdb-tool
-echo ==========================================================
-ls -l $BINDIR/ovsdb-tool
-echo ==========================================================
-echo file $BINDIR/ovsdb-tool
-file $BINDIR/ovsdb-tool
-echo ==========================================================
-echo objdump -p $BINDIR/ovsdb-tool
-objdump -p $BINDIR/ovsdb-tool
-echo ==========================================================
-echo ldd -v $BINDIR/ovsdb-tool
-ldd -v $BINDIR/ovsdb-tool
-echo ==========================================================
-ls -l $SCHEMADIR/vswitch.ovsschema
-ls -l $SCHEMADIR/vtep.ovsschema
-ls -l $SCHEMADIR/dhcp_leases.ovsschema
-ls -l $SCHEMADIR/configdb.ovsschema
-echo ==========================================================
-echo strace $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
-strace -f -x -s 256 -o/home/ubuntu/strace.out $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
-echo ==========================================================
 /usr/bin/test -f $DBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
 /usr/bin/test -f $VTEPDBDIR/vtep.db || $BINDIR/ovsdb-tool create $VTEPDBDIR/vtep.db $SCHEMADIR/vtep.ovsschema
 /usr/bin/test -f $DBDIR/dhcp_leases.db || $BINDIR/ovsdb-tool create $DBDIR/dhcp_leases.db $SCHEMADIR/dhcp_leases.ovsschema
@@ -79,10 +60,14 @@ echo ==========================================================
 #        /var/run/openvswitch/<name>.<pid>.ctl.  Can't dynamically
 #        assign the assign the pid if we are specifying a noncase 
 #        location for the pid.
+echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+if (( "$STARTDELAY" > "0" )) ; then
+    sleep $STARTDELAY
+fi
 
-NOT_YET="ops-arpmgrd ops-intfd"
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops_aaautilspamcfg restd ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
+NOT_YET="ops-arpmgrd ops-intfd ops_cfgd ops_aaautilspamcfg restd ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
+OPENSWITCH_DAEMONS="ops-sysd"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
@@ -99,5 +84,7 @@ for i in $OPENSWITCH_DAEMONS ; do
     esac
     echo STARTING: $daemon_loc/$i $daemon_args
     $daemon_loc/$i $daemon_args
-    sleep 1
+    if (( "$STARTDELAY" > "0" )) ; then
+        sleep $STARTDELAY
+    fi
 done

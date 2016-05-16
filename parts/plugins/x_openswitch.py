@@ -1,8 +1,10 @@
 import snapcraft
 import os
+import re
 import glob
 import logging
 import shutil
+import subprocess
 
 from snapcraft.internal import common, sources
 
@@ -29,7 +31,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
     def __init__(self, name, options, project):
         super().__init__(name, options, project)
 
-        self.build_packages.append('make')
+        self.build_packages.extend(['make', 'patchelf'])
 
         if self.options.cdppart:
             self.cdpdir = os.path.join(project.parts_dir, self.options.cdppart + '/build')
@@ -40,6 +42,16 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         else:
             self.cdpdir = None
             self.headersdir = None
+
+    def _set_interpreter(self, new_interpreter):
+        pattern = re.compile(".*ELF.*executable.*")
+        for root, dirs, files in os.walk(self.installdir):
+            for fname in files:
+                path = os.path.join(root, fname)
+                if os.access(path, os.X_OK):
+                    fout = subprocess.check_output(['file', path]).decode("utf-8")
+                    if pattern.match(fout):
+                        self.run(['patchelf', '--set-interpreter', new_interpreter, path])
 
     def build(self):
 
@@ -71,6 +83,13 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
             self.run(command + ['install-snappy', 'DESTDIR=' + self.installdir, 'CDPDIR=' + self.cdpdir])
         else:
             self.run(command + ['install-snappy', 'DESTDIR=' + self.installdir])
+
+        """ The OpenSwitch/OpenEmbedded/BitBake toolchain sets the interpreter on
+            executables to /lib/ld-linux-x86-64.so.2.  Ubuntu-core locates the
+            interpreter at /lib64/ld-linux-x86-64.so.2.  So, change all executables'
+            interpreter location to /lib64/ld-linux-x86-64.so.2.
+        """
+        self._set_interpreter('/lib64/ld-linux-x86-64.so.2');
 
     def clean_build(self):
 

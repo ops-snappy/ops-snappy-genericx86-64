@@ -1,7 +1,7 @@
-name: openswitch-as6712-no-asic
+name: openswitch-genericx86-64
 version: 0.3.0-2
-summary: OpenSwitch NOS for an as6712 host with a simulated ASIC.
-description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the as6712 host and a simulated ASIC.
+summary: OpenSwitch NOS for a genericx86-64 platform.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for genericx86-64 platform.
 
 apps:
   start-openswitch:
@@ -36,6 +36,6 @@ parts:
     plugin: x-openswitch
 #    source: https://github.com/ops-snappy/ops-build.git
     source: /work/ops-build
-    platform: as6712-no-asic
-    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1 ]
+    platform: genericx86-64
+    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1, binutils, file, strace, gdb ]
     after: [ ops-init ]
