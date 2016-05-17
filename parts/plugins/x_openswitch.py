@@ -43,10 +43,38 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
             self.cdpdir = None
             self.headersdir = None
 
+    """ Debugging information requires special handling for snappy.  The
+    debug info files (symbols, source paths, etc) need to be located in
+    the executable path rather than in a fixed global debug info dir.
+    This is because gdb uses the executable path to build the path to
+    the debug info.  Since the executable path is not determined until
+    installation, we can't anticipate the proper location for the debug
+    information in the global debug dir ahead of time.  The easiest
+    solution is to locate the debug information relative to the
+    execution path where gdb automatically searches.
+    """
+    def _relocate_debug_info(self,debug_info):
+        for root, dirs, files in os.walk(debug_info):
+            for dname in dirs:
+                dsrc = os.path.join(root, dname)
+                ddst = os.path.join(dsrc.replace('/usr/lib/debug', '', 1), '.debug')
+                if not os.path.exists(ddst):
+                    os.makedirs(ddst)
+                for fname in glob.glob(os.path.join(dsrc, '*.debug')):
+                    shutil.copy2(fname, ddst)
+        shutil.rmtree(debug_info)
+
     def _set_interpreter(self, new_interpreter):
         pattern = re.compile(".*ELF.*executable.*")
         for root, dirs, files in os.walk(self.installdir):
             for fname in files:
+                """ Don't mess with debug info files.  They look like
+                    executables, but they contain debug info extracted
+                    from the actual executable.  These are checksummed,
+                    so changing the contents breaks debugging.
+                """
+                if fname.endswith('.debug'):
+                    continue
                 path = os.path.join(root, fname)
                 if os.access(path, os.X_OK):
                     fout = subprocess.check_output(['file', path]).decode("utf-8")
@@ -90,6 +118,10 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
             interpreter location to /lib64/ld-linux-x86-64.so.2.
         """
         self._set_interpreter('/lib64/ld-linux-x86-64.so.2');
+
+        """ Reorganize debug info to make it snappy-friendly
+        """
+        self._relocate_debug_info(self.installdir + '/usr/lib/debug')
 
     def clean_build(self):
 

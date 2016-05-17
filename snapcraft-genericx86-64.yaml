@@ -19,6 +19,9 @@ apps:
   ovsdb-client:
     command: usr/bin/ovsdb-client
     plugs: [ networking ]
+  shell:
+    command: bin/bash
+    plugs: [ networking ]
 
 plugs:
 # TODO - come up with a better security profile for the daemons.
@@ -37,5 +40,5 @@ parts:
 #    source: https://github.com/ops-snappy/ops-build.git
     source: /work/ops-build
     platform: genericx86-64
-    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1, binutils, file, strace, gdb ]
+    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1, binutils, file, strace, gdb, bash ]
     after: [ ops-init ]
