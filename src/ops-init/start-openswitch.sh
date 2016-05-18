@@ -1,45 +1,10 @@
 #!/bin/bash
 
 # Slow down startup so can see what's happening easier
-STARTDELAY=0
+STARTDELAY=2
 
-# Syslog settings
-LOGSYSLOG="SYSLOG"
-LOGCONSOLE="CONSOLE"
-LOGLVLDBG="DBG"
-LOGLVLINFO="INFO"
-SYSLOGDBG="-v${LOGSYSLOG}:${LOGLVLDBG}"
-SYSLOGINFO="-v${LOGSYSLOG}:${LOGLVLINFO}"
-CONSDBG="-v${LOGCONSOLE}:${LOGLVLDBG}"
-CONSINFO="-v${LOGCONSOLE}:${LOGLVLINFO}"
-LOGDEFAULT=${CONSDBG}
-
-# Required directories
-DBDIR=$SNAP_DATA/var/run/openvswitch
-LOGDIR=$SNAP_DATA/var/log/openvswitch
-VTEPDBDIR=$SNAP_DATA/var/local/openvswitch
-PIDDIR=$DBDIR
-CTLDIR=$PIDDIR
-BINDIR=$SNAP/usr/bin
-SBINDIR=$SNAP/usr/sbin
-SCHEMADIR=$SNAP/usr/share/openvswitch
-CFGDIR=$SNAP_DATA/etc/openswitch
-
-# Override the default dir locations in ops-openvswitch
-export OVS_SYSCONFDIR=$SNAP/etc
-echo  OVS_SYSCONFDIR=$SNAP/etc
-export OVS_PKGDATADIR=$SCHEMADIR
-echo OVS_PKGDATADIR=$SCHEMADIR
-export OVS_RUNDIR=$DBDIR
-echo OVS_RUNDIR=$DBDIR
-export OVS_LOGDIR=$LOGDIR
-echo OVS_LOGDIR=$LOGDIR
-export OVS_DBDIR=$DBDIR
-echo OVS_DBDIR=$DBDIR
-
-# Override the default install_path and data_path in OpenSwitch
-export OPENSWITCH_INSTALL_PATH=$SNAP
-export OPENSWITCH_DATA_PATH=$SNAP_DATA
+# Setup OpenSwitch environment variables
+source $SNAP/usr/sbin/openswitch-env
 
 # Make sure the directories exist
 for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
@@ -66,24 +31,30 @@ if (( "$STARTDELAY" > "0" )) ; then
     sleep $STARTDELAY
 fi
 
-NOT_YET="ops-arpmgrd ops-intfd ops_cfgd ops_aaautilspamcfg restd ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
-OPENSWITCH_DAEMONS="ops-sysd"
+NOT_YET=""
+OPENSWITCH_DAEMONS="ops-sysd ops-arpmgrd restd ops-intfd ops_cfgd ops_aaautilspamcfg ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
     daemon_log=$LOGDEFAULT
+    daemonize="no"
     case $i in
         ops_cfgd|ops_aaautilspamcfg)
             daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
             ;;
         restd)
             daemon_args=""
+            daemonize="yes"
             ;;
         *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             ;;
     esac
     echo STARTING: $daemon_loc/$i $daemon_args
-    $daemon_loc/$i $daemon_args
+    if [ $daemonize="yes" ] ; then
+        $daemon_loc/$i $daemon_args &
+    else
+        $daemon_loc/$i $daemon_args
+    fi
     if (( "$STARTDELAY" > "0" )) ; then
         sleep $STARTDELAY
     fi

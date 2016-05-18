@@ -40,5 +40,5 @@ parts:
 #    source: https://github.com/ops-snappy/ops-build.git
     source: /work/ops-build
     platform: genericx86-64
-    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1, binutils, file, strace, gdb, bash ]
+    stage-packages: [ binutils, file, strace, gdb, bash ]
     after: [ ops-init ]
