@@ -54,6 +54,8 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
     execution path where gdb automatically searches.
     """
     def _relocate_debug_info(self,debug_info):
+        if not os.path.exists(debug_info):
+            return
         for root, dirs, files in os.walk(debug_info):
             for dname in dirs:
                 dsrc = os.path.join(root, dname)
