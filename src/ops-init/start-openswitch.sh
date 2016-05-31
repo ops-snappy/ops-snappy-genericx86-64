@@ -6,6 +6,16 @@ STARTDELAY=2
 # Setup OpenSwitch environment variables
 source $SNAP/usr/sbin/openswitch-env
 
+# Setup netop and admin users
+if [ -e /var/lib/extrausers ] ; then
+    EXTRA=--extrausers
+fi
+addgroup $EXTRA ops_admin > /dev/null 2>&1 || true
+addgroup $EXTRA ops_netop > /dev/null 2>&1 || true
+addgroup $EXTRA ovsdb-client > /dev/null 2>&1 || true
+useradd $EXTRA -m -G ops_netop -p '$6$JYV2DfTJ$djhTyj2L/VqWjQR2T15s/ndfS0jQl0N/.OtFUUtT0/oQOwmIJqJyVgWMflB71aH9mWZ.Tdbjud/FCycBSA3Vk0' netop > /dev/null 2>&1 || true
+useradd $EXTRA -m -G ops_admin,ops_netop,ovsdb-client -p '$6$KbOFlyzh$DdxoPRI4a41GfKxJpXIZoOuuSv7wamj2qkZw8Z/R18hhDpF5NBEHzykP819/1DnjZkbxaSYMyuvAzVb/OjRYt/' opsadmin > /dev/null 2>&1 || true
+
 # Make sure the directories exist
 for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
     /usr/bin/test -d $i || mkdir -p $i
@@ -31,8 +41,12 @@ if (( "$STARTDELAY" > "0" )) ; then
     sleep $STARTDELAY
 fi
 
+# Start the NTP server
+echo STARTING: NTP client daemon...
+ntp &
+
 NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops-arpmgrd restd ops-intfd ops_cfgd ops_aaautilspamcfg ops-tempd ops-fand ops-powerd ops-pmd ops-ledd ops-vland ops-portd"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv ops_aaautilspamcfg ops-switchd ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd bufmond ops-portd ops-vland ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
@@ -45,6 +59,10 @@ for i in $OPENSWITCH_DAEMONS ; do
         restd)
             daemon_args=""
             daemonize="yes"
+            ;;
+        ops-switchd)
+            daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
+            daemon_loc=$SBINDIR
             ;;
         *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             ;;
