@@ -1,7 +1,7 @@
 name: openswitch-alphanetworks-snx-60a0-486f
 version: 0.3.0-2
-summary: OpenSwitch NOS for an alphanetworks-snx-60a0-486f host.
-description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F host.
+summary: OpenSwitch NOS for an Alphanetworks SNX-60A0-486F platform.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F platform.
 
 apps:
   start-openswitch:
@@ -18,6 +18,9 @@ apps:
     plugs: [ networking ]
   ovsdb-client:
     command: usr/bin/ovsdb-client
+    plugs: [ networking ]
+  shell:
+    command: bin/bash
     plugs: [ networking ]
 
 plugs:
@@ -40,10 +43,9 @@ parts:
 
   openswitch:
     plugin: x-openswitch
-#    source: https://github.com/ops-snappy/ops-build.git
-    source: /work/ops-build
+    source: https://github.com/ops-snappy/ops-build.git
     platform: alphanetworks-snx-60a0-486f
     linuxheaders: /usr/src/linux-headers-4.4.0-22-generic
     cdppart: opennsl
-    stage-packages: [ libyaml-cpp0.3-dev, zlib1g, libatomic1 ]
+    stage-packages: [ binutils, file, strace, gdb, bash ]
     after: [ opennsl ]
