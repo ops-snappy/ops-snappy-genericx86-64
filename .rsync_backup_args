@@ -1,0 +1,9 @@
+--prune-empty-dirs
+--delete
+--delete-excluded
+--exclude=/parts/plugins/__pycache__/
+--include=/parts/plugins/
+--exclude=/parts/*
+--exclude=/stage/
+--exclude=/snap/
+--exclude=*.snap
