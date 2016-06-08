@@ -38,8 +38,7 @@ parts:
 
   openswitch:
     plugin: x-openswitch
-#    source: https://github.com/ops-snappy/ops-build.git
-    source: /work/ops-build
+    source: https://github.com/ops-snappy/ops-build.git
     platform: genericx86-64
     stage-packages: [ ntp, binutils, file, strace, gdb, bash ]
     after: [ ops-init ]
