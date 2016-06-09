@@ -16,13 +16,6 @@ for i in $PIDDIR/*.pid ; do
     fi
 done
 
-if [ -d /sys/class/gpio/gpiochip452 ] ; then
-    if [ -d /sys/class/gpio/gpio470 ] ; then
-        echo '1' | tee --append /sys/class/gpio/gpio470/value > /dev/null
-        echo '470' | tee --append /sys/class/gpio/unexport > /dev/null
-    fi
-fi
-
 if [ ! -z "$dbsvrpid" ] ; then
     sleep 1
     kill -9 $dbsvrpid
