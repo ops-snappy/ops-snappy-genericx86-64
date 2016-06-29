@@ -6,6 +6,7 @@ parts/ops-init
 stage
 snap
 work
+prime
 *~
 */*/*~
 parts/plugins/__pycache__
