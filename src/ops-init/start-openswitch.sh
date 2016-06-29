@@ -41,17 +41,37 @@ if (( "$STARTDELAY" > "0" )) ; then
     sleep $STARTDELAY
 fi
 
+#
+# Appliance
+#
+if [ -f $OPTSBINDIR/ovsdb-server ] ; then
+    /usr/bin/test -d $SIMDBDIR || mkdir -p $SIMDBDIR
+    /usr/bin/test -f $SIMDBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $SIMDBDIR/ovsdb.db $OPTSCHEMADIR/vswitch.ovsschema
+    /usr/bin/test -f $SIMDBDIR/vtep.db || $BINDIR/ovsdb-tool create $SIMDBDIR/vtep.db $OPTSCHEMADIR/vtep.ovsschema
+    echo STARTING: $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid --unixctl=$CTLDIR/ovsdb-server-sim.ctl $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
+    cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid --unixctl=$CTLDIR/ovsdb-server-sim.ctl $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
+    if (( "$STARTDELAY" > "0" )) ; then
+        sleep $STARTDELAY
+    fi
+fi
+if [ -f $OPTSBINDIR/ovs-switchd-sim ] ; then
+    SWITCH_DAEMONS=ovs-switchd-sim ops-switchd
+else
+    SWITCH_DAEMONS=ops-switchd bufmond
+fi
+
 # Start the NTP server
-echo STARTING: NTP client daemon...
-ntp &
+# echo STARTING: NTP client daemon...
+# ntp &
 
 NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv ops_aaautilspamcfg ops-switchd ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd bufmond ops-portd ops-vland ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
     daemon_log=$LOGDEFAULT
     daemonize="no"
+    working_dir=$DBDIR
     case $i in
         ops_cfgd|ops_aaautilspamcfg)
             daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
@@ -63,6 +83,10 @@ for i in $OPENSWITCH_DAEMONS ; do
         ops-switchd)
             daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             daemon_loc=$SBINDIR
+            ;;
+        ovs-switchd-sim)
+            daemon_loc=$OPTSBINDIR
+            working_dir=$SIMDBDIR
             ;;
         *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             ;;

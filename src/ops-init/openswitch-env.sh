@@ -25,6 +25,9 @@ BINDIR=$SNAP/usr/bin
 SBINDIR=$SNAP/usr/sbin
 SCHEMADIR=$SNAP/usr/share/openvswitch
 CFGDIR=$SNAP_DATA/etc/openswitch
+OPTSBINDIR=$SNAP/opt/openvswitch/sbin
+OPTSCHEMADIR=$SNAP/opt/openvswitch/share/openvswitch
+SIMDBDIR=$SNAP_DATA/var/run/openvswitch-sim
 
 # Override the default dir locations in ops-openvswitch
 export OVS_SYSCONFDIR=$SNAP/etc

@@ -40,5 +40,5 @@ parts:
     plugin: x-openswitch
     source: https://github.com/ops-snappy/ops-build.git
     platform: appliance
-    stage-packages: [ ntp, binutils, file, strace, gdb, bash ]
+    stage-packages: [ libpam-radius-auth, resolvconf, binutils, file, strace, bash ]
     after: [ ops-init ]
