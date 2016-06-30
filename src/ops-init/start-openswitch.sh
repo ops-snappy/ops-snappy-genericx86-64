@@ -65,7 +65,7 @@ fi
 # ntp &
 
 NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintfcfg ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
@@ -76,7 +76,7 @@ for i in $OPENSWITCH_DAEMONS ; do
         ops_cfgd|ops_aaautilspamcfg)
             daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
             ;;
-        restd)
+        restd|ops_ntpd)
             daemon_args=""
             daemonize="yes"
             ;;
@@ -87,6 +87,12 @@ for i in $OPENSWITCH_DAEMONS ; do
         ovs-vswitchd-sim)
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
+            ;;
+        ops_mgmtintfcfg)
+            daemon_args="--detach --pidfile=$PIDDIR/$i.pid $daemon_log"
+            ;;
+        ops-lldpd|ops-bgpd|ops-ospfd|ops-zebra)
+            daemon_loc=$SBINDIR
             ;;
         *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             ;;

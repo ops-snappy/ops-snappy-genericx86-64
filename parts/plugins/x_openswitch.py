@@ -67,7 +67,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         shutil.rmtree(debug_info)
 
     def _set_interpreter(self, new_interpreter):
-        pattern = re.compile(".*ELF.*executable.*")
+        pattern = re.compile(".*ELF.*interpreter /lib/ld-linux-x86-64\.so\.2.*")
         for root, dirs, files in os.walk(self.installdir):
             for fname in files:
                 """ Don't mess with debug info files.  They look like
