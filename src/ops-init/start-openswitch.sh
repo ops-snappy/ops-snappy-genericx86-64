@@ -54,10 +54,10 @@ if [ -f $OPTSBINDIR/ovsdb-server ] ; then
         sleep $STARTDELAY
     fi
 fi
-if [ -f $OPTSBINDIR/ovs-switchd-sim ] ; then
-    SWITCH_DAEMONS=ovs-switchd-sim ops-switchd
+if [ -f $OPTSBINDIR/ovs-vswitchd-sim ] ; then
+    SWITCH_DAEMONS="ovs-vswitchd-sim ops-switchd"
 else
-    SWITCH_DAEMONS=ops-switchd bufmond
+    SWITCH_DAEMONS="ops-switchd bufmond"
 fi
 
 # Start the NTP server
@@ -65,7 +65,7 @@ fi
 # ntp &
 
 NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintf ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops-ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
@@ -84,7 +84,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
             daemon_loc=$SBINDIR
             ;;
-        ovs-switchd-sim)
+        ovs-vswitchd-sim)
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
             ;;
