@@ -7,28 +7,18 @@ confinement: devmode
 apps:
   start-openswitch:
     command: usr/sbin/start-openswitch
-    plugs: [ networking ]
+    plugs: [ network, network-control, network-bind, network-manager, gsettings ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
-    plugs: [ networking ]
   ovs-appctl:
     command: usr/bin/ovs-appctl
-    plugs: [ networking ]
   ovsdb-tool:
     command: usr/bin/ovsdb-tool
-    plugs: [ networking ]
   ovsdb-client:
     command: usr/bin/ovsdb-client
-    plugs: [ networking ]
   shell:
     command: bin/bash
-    plugs: [ networking ]
-
-plugs:
-# TODO - come up with a better security profile for the daemons.
-  networking:
-    interface: old-security
-    security-template: unconfined
+    plugs: [ network, network-control, network-bind, network-manager, gsettings ]
 
 parts:
 
