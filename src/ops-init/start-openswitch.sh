@@ -73,10 +73,10 @@ for i in $OPENSWITCH_DAEMONS ; do
     daemonize="no"
     working_dir=$DBDIR
     case $i in
-        ops_cfgd|ops_aaautilspamcfg)
+        ops_cfgd|ops_aaautilspamcfg|ops_ntpd)
             daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
             ;;
-        restd|ops_ntpd)
+        restd)
             daemon_args=""
             daemonize="yes"
             ;;
