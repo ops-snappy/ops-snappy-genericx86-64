@@ -7,7 +7,7 @@ confinement: devmode
 apps:
   start-openswitch:
     command: usr/sbin/start-openswitch
-    plugs: [ network, network-control, network-bind, network-manager, gsettings ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
   ovs-appctl:
@@ -18,7 +18,7 @@ apps:
     command: usr/bin/ovsdb-client
   shell:
     command: bin/bash
-    plugs: [ network, network-control, network-bind, network-manager, gsettings ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
 
 parts:
 
