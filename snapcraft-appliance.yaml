@@ -16,6 +16,8 @@ apps:
     command: usr/bin/ovsdb-tool
   ovsdb-client:
     command: usr/bin/ovsdb-client
+  vtysh:
+    command: usr/bin/vtysh
   shell:
     command: bin/bash
     plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]

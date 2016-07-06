@@ -1,20 +1,25 @@
 #!/bin/bash
 
 # Slow down startup so can see what's happening easier
-STARTDELAY=2
+STARTDELAY=0
 
 # Setup OpenSwitch environment variables
 source $SNAP/usr/sbin/openswitch-env
 
-# Setup netop and admin users
+# Setup netop and opsadmin users
 if [ -e /var/lib/extrausers ] ; then
     EXTRA=--extrausers
 fi
 addgroup $EXTRA ops_admin > /dev/null 2>&1 || true
 addgroup $EXTRA ops_netop > /dev/null 2>&1 || true
 addgroup $EXTRA ovsdb-client > /dev/null 2>&1 || true
-useradd $EXTRA -m -G ops_netop -p '$6$JYV2DfTJ$djhTyj2L/VqWjQR2T15s/ndfS0jQl0N/.OtFUUtT0/oQOwmIJqJyVgWMflB71aH9mWZ.Tdbjud/FCycBSA3Vk0' netop > /dev/null 2>&1 || true
-useradd $EXTRA -m -G ops_admin,ops_netop,ovsdb-client -p '$6$KbOFlyzh$DdxoPRI4a41GfKxJpXIZoOuuSv7wamj2qkZw8Z/R18hhDpF5NBEHzykP819/1DnjZkbxaSYMyuvAzVb/OjRYt/' opsadmin > /dev/null 2>&1 || true
+useradd $EXTRA -m -G -p '$6$JYV2DfTJ$djhTyj2L/VqWjQR2T15s/ndfS0jQl0N/.OtFUUtT0/oQOwmIJqJyVgWMflB71aH9mWZ.Tdbjud/FCycBSA3Vk0' netop > /dev/null 2>&1 || true
+useradd $EXTRA -m -p '$6$KbOFlyzh$DdxoPRI4a41GfKxJpXIZoOuuSv7wamj2qkZw8Z/R18hhDpF5NBEHzykP819/1DnjZkbxaSYMyuvAzVb/OjRYt/' opsadmin > /dev/null 2>&1 || true
+adduser $EXTRA netop ops_netop > /dev/null 2>&1 || true
+adduser $EXTRA netop ovsdb-client > /dev/null 2>&1 || true
+adduser $EXTRA opsadmin ops_admin > /dev/null 2>&1 || true
+adduser $EXTRA opsadmin ops_netop > /dev/null 2>&1 || true
+adduser $EXTRA opsadmin ovsdb-client > /dev/null 2>&1 || true
 
 # Make sure the directories exist
 for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
