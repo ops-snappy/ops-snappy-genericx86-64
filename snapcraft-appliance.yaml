@@ -10,12 +10,6 @@ apps:
     plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
-  ovs-appctl:
-    command: usr/bin/ovs-appctl
-  ovsdb-tool:
-    command: usr/bin/ovsdb-tool
-  ovsdb-client:
-    command: usr/bin/ovsdb-client
   vtysh:
     command: usr/sbin/start-vtysh
   shell:
