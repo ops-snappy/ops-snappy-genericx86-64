@@ -7,3 +7,4 @@ install:
 	install -m 755 openswitch-env.sh $(SBIN)/openswitch-env
 	install -m 755 start-openswitch.sh $(SBIN)/start-openswitch
 	install -m 755 stop-openswitch.sh $(SBIN)/stop-openswitch
+	install -m 755 start-vtysh.sh $(SBIN)/start-vtysh

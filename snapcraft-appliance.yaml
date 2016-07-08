@@ -17,7 +17,7 @@ apps:
   ovsdb-client:
     command: usr/bin/ovsdb-client
   vtysh:
-    command: usr/bin/vtysh
+    command: usr/sbin/start-vtysh
   shell:
     command: bin/bash
     plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
@@ -27,11 +27,12 @@ parts:
   ops-init:
     plugin: make
     source: src/ops-init
+    stage-packages: [ binutils, file, strace, bash ]
 
   openswitch:
     plugin: x-openswitch
     source: https://github.com/ops-snappy/ops-build.git
     platform: appliance
 #    skip-native-build: true
-    stage-packages: [ libpam-radius-auth, resolvconf, binutils, file, strace, bash ]
+    stage-packages: [ libpam-radius-auth, resolvconf ]
     after: [ ops-init ]
