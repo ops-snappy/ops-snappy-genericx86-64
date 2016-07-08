@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Slow down startup so can see what's happening easier
 STARTDELAY=0
@@ -24,6 +24,7 @@ adduser $EXTRA opsadmin ovsdb-client > /dev/null 2>&1 || true
 # Make sure the directories exist
 for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
     /usr/bin/test -d $i || mkdir -p $i
+    chmod 777 $i
 done
 
 # Create the network namespaces
@@ -36,12 +37,8 @@ $SBINDIR/ops-init
 /usr/bin/test -f $DBDIR/config.db || $BINDIR/ovsdb-tool create $DBDIR/config.db $SCHEMADIR/configdb.ovsschema
 
 # OVSDB Server
-# TODO - By default, the unix control socket is located at
-#        /var/run/openvswitch/<name>.<pid>.ctl.  Can't dynamically
-#        assign the assign the pid if we are specifying a noncase 
-#        location for the pid.
-echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
-$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid --unixctl=$CTLDIR/ovsdb-server.ctl $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 if (( "$STARTDELAY" > "0" )) ; then
     sleep $STARTDELAY
 fi
@@ -53,8 +50,8 @@ if [ -f $OPTSBINDIR/ovsdb-server ] ; then
     /usr/bin/test -d $SIMDBDIR || mkdir -p $SIMDBDIR
     /usr/bin/test -f $SIMDBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $SIMDBDIR/ovsdb.db $OPTSCHEMADIR/vswitch.ovsschema
     /usr/bin/test -f $SIMDBDIR/vtep.db || $BINDIR/ovsdb-tool create $SIMDBDIR/vtep.db $OPTSCHEMADIR/vtep.ovsschema
-    echo STARTING: $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid --unixctl=$CTLDIR/ovsdb-server-sim.ctl $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
-    cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid --unixctl=$CTLDIR/ovsdb-server-sim.ctl $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
+    echo STARTING: $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
+    cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
     if (( "$STARTDELAY" > "0" )) ; then
         sleep $STARTDELAY
     fi
@@ -86,7 +83,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemonize="yes"
             ;;
         ops-switchd)
-            daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
+            daemon_args="$daemon_args $daemon_log"
             daemon_loc=$SBINDIR
             ;;
         ovs-vswitchd-sim)
@@ -99,7 +96,7 @@ for i in $OPENSWITCH_DAEMONS ; do
         ops-lldpd|ops-bgpd|ops-ospfd|ops-zebra)
             daemon_loc=$SBINDIR
             ;;
-        *)  daemon_args="$daemon_args $daemon_log --unixctl=$CTLDIR/$i.ctl"
+        *)  daemon_args="$daemon_args $daemon_log"
             ;;
     esac
     echo STARTING: $daemon_loc/$i $daemon_args

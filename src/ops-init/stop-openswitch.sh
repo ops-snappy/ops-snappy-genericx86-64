@@ -1,10 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# Required directories
-DBDIR=$SNAP_DATA/var/run/openvswitch
-VTEPDBDIR=$SNAP_DATA/var/local/openvswitch
-PIDDIR=$DBDIR
-CTLDIR=$PIDDIR
+# Setup OpenSwitch environment variables
+source $SNAP/usr/sbin/openswitch-env
+
 DBSVR="ovsdb-server.pid"
 
 for i in $PIDDIR/*.pid ; do
