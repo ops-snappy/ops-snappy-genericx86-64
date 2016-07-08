@@ -74,6 +74,23 @@ for i in $OPENSWITCH_DAEMONS ; do
     daemon_log=$LOGDEFAULT
     daemonize="no"
     working_dir=$DBDIR
+
+    # Some daemons need to start in a specific namespace.
+    case $i in
+        # Start daemon in 'netns' namespace.
+        ovs-vswitchd-sim|ops-ipsecd|hsflowd|ops_dhcp_tftp|ops-switchd|ops-lacpd|ops-stpd|ops-lldpd|ops-arpmgrd|ops-krtd|ops-udpfwd|ops-zebra|ops-bgpd|ops-ospfd|ops-portd)
+            daemon_netns="ip netns exec swns"
+            ;;
+        # Start daemon in 'nonet' namespace.
+        ops_aaautilspamcfg|bufmond|ops-hw-vtep|ops-vland|ops-intfd|ops-classifierd|ops-ledd|ops-sysd|ops-fand|ops-pmd|ops-tempd|ops-powerd)
+            daemon_netns="ip netns exec nonet"
+            ;;
+        # Start daemon in unnamed system namespace.
+        *)
+            daemon_netns=""
+            ;;
+    esac
+
     case $i in
         ops_cfgd|ops_aaautilspamcfg|ops_ntpd)
             daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
@@ -99,11 +116,11 @@ for i in $OPENSWITCH_DAEMONS ; do
         *)  daemon_args="$daemon_args $daemon_log"
             ;;
     esac
-    echo STARTING: $daemon_loc/$i $daemon_args
+    echo STARTING: $daemon_netns $daemon_loc/$i $daemon_args
     if [ $daemonize="yes" ] ; then
-        $daemon_loc/$i $daemon_args &
+        $daemon_netns $daemon_loc/$i $daemon_args &
     else
-        $daemon_loc/$i $daemon_args
+        $daemon_netns $daemon_loc/$i $daemon_args
     fi
     if (( "$STARTDELAY" > "0" )) ; then
         sleep $STARTDELAY
