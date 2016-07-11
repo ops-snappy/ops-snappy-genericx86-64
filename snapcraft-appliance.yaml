@@ -10,6 +10,7 @@ apps:
     plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
   vtysh:
     command: usr/sbin/start-vtysh
   shell:
