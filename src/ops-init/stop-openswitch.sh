@@ -23,7 +23,7 @@ rm -f  $PIDDIR/*.pid
 rm -f  $CTLDIR/*.ctl
 
 # Delete namespaces. This avoids errors when restarting the snap.
-/sbin/ip netns delete swns
-/sbin/ip netns delete nonet
+/sbin/ip netns delete swns > /dev/null 2>&1 || true
+/sbin/ip netns delete nonet > /dev/null 2>&1 || true
 
 
