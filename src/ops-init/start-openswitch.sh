@@ -67,7 +67,7 @@ fi
 # ntp &
 
 NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintfcfg ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintfcfg ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
@@ -99,6 +99,11 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_args=""
             daemonize="yes"
             ;;
+        snmpd)
+            daemon_args="-LS0-6d -f -C -c $SNAP/etc/snmp/snmpd.conf,$SNAP/etc/snmp/snmptrapd.conf -M $SNAP/usr/share/snmp/mibs -p $PIDDIR/$i.pid"
+            daemon_loc=$SBINDIR
+            daemonize="yes"
+            ;;
         ops-switchd)
             daemon_args="$daemon_args $daemon_log"
             daemon_loc=$SBINDIR
@@ -107,7 +112,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
             ;;
-        ops_mgmtintfcfg)
+        ops_mgmtintfcfg|ops-snmpd)
             daemon_args="--detach --pidfile=$PIDDIR/$i.pid $daemon_log"
             ;;
         ops-lldpd|ops-bgpd|ops-ospfd|ops-zebra)
