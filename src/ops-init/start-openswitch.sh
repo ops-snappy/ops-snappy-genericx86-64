@@ -39,9 +39,6 @@ $SBINDIR/ops-init
 # OVSDB Server
 echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
-if (( "$STARTDELAY" > "0" )) ; then
-    sleep $STARTDELAY
-fi
 
 #
 # Appliance
@@ -52,26 +49,25 @@ if [ -f $OPTSBINDIR/ovsdb-server ] ; then
     /usr/bin/test -f $SIMDBDIR/vtep.db || $BINDIR/ovsdb-tool create $SIMDBDIR/vtep.db $OPTSCHEMADIR/vtep.ovsschema
     echo STARTING: $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
     cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
-    if (( "$STARTDELAY" > "0" )) ; then
-        sleep $STARTDELAY
-    fi
 fi
+
+if (( "$STARTDELAY" > "0" )) ; then
+    sleep $STARTDELAY
+fi
+
 if [ -f $OPTSBINDIR/ovs-vswitchd-sim ] ; then
     SWITCH_DAEMONS="ovs-vswitchd-sim ops-switchd"
 else
     SWITCH_DAEMONS="ops-switchd bufmond"
 fi
 
-# Start the NTP server
-# echo STARTING: NTP client daemon...
-# ntp &
-
-NOT_YET=""
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintfcfg ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+NOT_YET="ops_mgmtintfcfg"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
     daemon_log=$LOGDEFAULT
+    daemon_db="--database=unix:$DBDIR/db.sock"
     daemonize="no"
     working_dir=$DBDIR
 
@@ -93,7 +89,7 @@ for i in $OPENSWITCH_DAEMONS ; do
 
     case $i in
         ops_cfgd|ops_aaautilspamcfg|ops_ntpd)
-            daemon_args="$daemon_args $daemon_log --database=unix:$DBDIR/db.sock"
+            daemon_args="$daemon_args $daemon_log $daemon_db"
             ;;
         restd)
             daemon_args=""
@@ -113,7 +109,10 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
             ;;
-        ops_mgmtintfcfg|ops-snmpd)
+        ops_mgmtintfcfg)
+            daemon_args="--detach --pidfile=$PIDDIR/$i.pid $daemon_log $daemon_db"
+            ;;
+        ops-snmpd)
             daemon_args="--detach --pidfile=$PIDDIR/$i.pid $daemon_log"
             ;;
         ops-lldpd|ops-bgpd|ops-ospfd|ops-zebra)
