@@ -93,7 +93,7 @@ for i in $OPENSWITCH_DAEMONS ; do
 
     case $i in
         ops_cfgd|ops_aaautilspamcfg|ops_ntpd)
-            daemon_args="$daemon_args $daemon_log --database=$DBDIR/db.sock"
+            daemon_args="$daemon_args $daemon_log --database=unix:$DBDIR/db.sock"
             ;;
         restd)
             daemon_args=""
@@ -109,6 +109,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_loc=$SBINDIR
             ;;
         ovs-vswitchd-sim)
+            daemon_args="$daemon_args $daemon_log"
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
             ;;
