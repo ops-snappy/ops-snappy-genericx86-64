@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Until we get proper ordering, delay after starting the database servers
+DBDELAY=2
+
 # Slow down startup so can see what's happening easier
 STARTDELAY=0
 
@@ -22,7 +25,7 @@ adduser $EXTRA opsadmin ops_netop > /dev/null 2>&1 || true
 adduser $EXTRA opsadmin ovsdb-client > /dev/null 2>&1 || true
 
 # Make sure the directories exist
-for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR ; do
+for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR $PASSWDDIR; do
     /usr/bin/test -d $i || mkdir -p $i
     chmod 777 $i
 done
@@ -51,8 +54,8 @@ if [ -f $OPTSBINDIR/ovsdb-server ] ; then
     cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
 fi
 
-if (( "$STARTDELAY" > "0" )) ; then
-    sleep $STARTDELAY
+if (( "$DBDELAY" > "0" )) ; then
+    sleep $DBDELAY
 fi
 
 if [ -f $OPTSBINDIR/ovs-vswitchd-sim ] ; then
@@ -101,7 +104,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemonize="yes"
             ;;
         ops-switchd)
-            daemon_args="$daemon_args $daemon_log"
+            daemon_args="$daemon_args $daemon_log --plugins-path=$SNAP/usr/lib/openvswitch/plugins"
             daemon_loc=$SBINDIR
             ;;
         ovs-vswitchd-sim)

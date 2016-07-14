@@ -13,7 +13,7 @@ SYSLOGDBG="-v${LOGSYSLOG}:${LOGLVLDBG}"
 SYSLOGINFO="-v${LOGSYSLOG}:${LOGLVLINFO}"
 CONSDBG="-v${LOGCONSOLE}:${LOGLVLDBG}"
 CONSINFO="-v${LOGCONSOLE}:${LOGLVLINFO}"
-LOGDEFAULT=${CONSINFO}
+LOGDEFAULT=${SYSLOGINFO}
 
 # Required directories
 DBDIR=$SNAP_DATA/run/openvswitch
@@ -28,6 +28,7 @@ CFGDIR=$SNAP_DATA/etc/openswitch
 OPTSBINDIR=$SNAP/opt/openvswitch/sbin
 OPTSCHEMADIR=$SNAP/opt/openvswitch/share/openvswitch
 SIMDBDIR=$SNAP_DATA/run/openvswitch-sim
+PASSWDDIR=$SNAP_DATA/var/run/ops-passwd-srv
 
 # Override the default dir locations in ops-openvswitch
 export OVS_SYSCONFDIR=$SNAP/etc
