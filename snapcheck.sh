@@ -103,8 +103,19 @@ check_interfaces()
     fi
 }
 
+check_global_package()
+{
+    installed=$(dpkg -l $1) 
+    if [[ -z $installed ]] ; then
+        echo "ERROR: Missing system package: fix using 'sudo apt install $1'"
+	errors=`expr $errors + 1`
+    fi
+}
+
 check_grub
 check_eth0
 check_network_devices
 check_snap
 check_interfaces
+check_global_package ntp
+check_global_package libpam-radius-auth
