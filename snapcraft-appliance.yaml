@@ -26,8 +26,8 @@ parts:
 
   openswitch:
     plugin: x-openswitch
-    source: /builds/sdelahunty/ops-debian2/ops-build
+    source: https://github.com/ops-snappy/ops-build.git
     platform: appliance
-    skip-native-build: true
+#    skip-native-build: true
     stage-packages: [ libpam-radius-auth, resolvconf ]
     after: [ ops-init ]
