@@ -29,5 +29,5 @@ parts:
     source: https://github.com/ops-snappy/ops-build.git
     platform: appliance
 #    skip-native-build: true
-    stage-packages: [ libpam-radius-auth, resolvconf ]
+    stage-packages: [ resolvconf ]
     after: [ ops-init ]
