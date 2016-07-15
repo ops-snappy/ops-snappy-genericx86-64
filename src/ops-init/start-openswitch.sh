@@ -71,6 +71,8 @@ for i in $OPENSWITCH_DAEMONS ; do
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
     daemon_log=$LOGDEFAULT
     daemon_db="--database=unix:$DBDIR/db.sock"
+    daemon_sim_args="--detach --no-chdir --pidfile=$SIMDBDIR/$i.pid"
+    daemon_sim_db="--database=unix:$SIMDBDIR/db.sock"
     daemonize="no"
     working_dir=$DBDIR
 
@@ -108,7 +110,7 @@ for i in $OPENSWITCH_DAEMONS ; do
             daemon_loc=$SBINDIR
             ;;
         ovs-vswitchd-sim)
-            daemon_args="$daemon_args $daemon_log"
+            daemon_args="$daemon_sim_args $daemon_log $daemon_sim_db"
             daemon_loc=$OPTSBINDIR
             working_dir=$SIMDBDIR
             ;;
@@ -125,11 +127,13 @@ for i in $OPENSWITCH_DAEMONS ; do
             ;;
     esac
     echo STARTING: $daemon_netns $daemon_loc/$i $daemon_args
+    pushd $working_dir
     if [ $daemonize="yes" ] ; then
         $daemon_netns $daemon_loc/$i $daemon_args &
     else
         $daemon_netns $daemon_loc/$i $daemon_args
     fi
+    popd
     if (( "$STARTDELAY" > "0" )) ; then
         sleep $STARTDELAY
     fi
