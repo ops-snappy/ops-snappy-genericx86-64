@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Setup OpenSwitch common environment variables
-source $SNAP/usr/sbin/openswitch-common-env
-
 # Until we get proper ordering, delay after starting the database servers
 DBDELAY=2
 

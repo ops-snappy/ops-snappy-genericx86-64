@@ -3,6 +3,7 @@
 #
 # Openswitch Environment Settings
 #
+source $SNAP/usr/sbin/openswitch-common-env
 
 # Required directories
 BINDIR=$SNAP/usr/bin

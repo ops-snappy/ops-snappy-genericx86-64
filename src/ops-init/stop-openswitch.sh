@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Setup OpenSwitch environment variables
-source $SNAP/usr/sbin/openswitch-common-env
 source $SNAP/usr/sbin/openswitch-env
 
 DBSVR="ovsdb-server.pid"
