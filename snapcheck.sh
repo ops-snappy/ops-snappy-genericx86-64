@@ -109,6 +109,8 @@ check_global_package()
     if [[ -z $installed ]] ; then
         echo "ERROR: Missing system package: fix using 'sudo apt install $1'"
 	errors=`expr $errors + 1`
+    else
+        echo "OK: package '$1' is installed."
     fi
 }
 
