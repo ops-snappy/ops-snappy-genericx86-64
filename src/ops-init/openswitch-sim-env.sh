@@ -5,14 +5,14 @@
 #
 
 # Required directories
-BINDIR=$SNAP/usr/bin
-SBINDIR=$SNAP/usr/sbin
-DBDIR=$SNAP_DATA/run/openvswitch
-LOGDIR=$SNAP_DATA/var/log/openvswitch
-VTEPDBDIR=$SNAP_DATA/var/local/openvswitch
+BINDIR=$SNAP/opt/openvswitch/bin
+SBINDIR=$SNAP/opt/openvswitch/sbin
+DBDIR=$SNAP_DATA/run/openvswitch-sim
+LOGDIR=$SNAP_DATA/var/log/openvswitch-sim
+VTEPDBDIR=$SNAP_DATA/var/local/openvswitch-sim
+SCHEMADIR=$SNAP/opt/openvswitch/share/openvswitch
 PIDDIR=$DBDIR
 CTLDIR=$PIDDIR
-SCHEMADIR=$SNAP/usr/share/openvswitch
 
 # Override the default dir locations in ops-openvswitch
 export OVS_SYSCONFDIR=$SNAP/etc

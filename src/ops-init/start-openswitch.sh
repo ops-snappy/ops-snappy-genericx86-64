@@ -1,10 +1,50 @@
 #!/usr/bin/env bash
 
+# Setup OpenSwitch common environment variables
+source $SNAP/usr/sbin/openswitch-common-env
+
 # Until we get proper ordering, delay after starting the database servers
 DBDELAY=2
 
 # Slow down startup so can see what's happening easier
 STARTDELAY=0
+
+# Create the network namespaces
+source $SNAP/usr/sbin/openswitch-env
+$SBINDIR/ops-init
+
+#
+# Appliance / Simulation
+#
+source $SNAP/usr/sbin/openswitch-sim-env
+if [ -f $SBINDIR/ovsdb-server ] ; then
+    /usr/bin/test -d $DBDIR || mkdir -p $DBDIR
+    /usr/bin/test -f $DBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
+    /usr/bin/test -f $DBDIR/vtep.db || $BINDIR/ovsdb-tool create $DBDIR/vtep.db $SCHEMADIR/vtep.ovsschema
+    echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/vtep.db
+    cd $DBDIR && $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/vtep.db
+
+    if (( "$DBDELAY" > "0" )) ; then
+        sleep $DBDELAY
+    fi
+
+    daemon_sim_log=$LOGDEFAULT
+    daemon_sim_loc=$SBINDIR
+    daemon_sim_netns="ip netns exec swns"
+    daemon_sim_args="--detach --no-chdir --pidfile=$DBDIR/ovs-vswitchd-sim.pid"
+    echo STARTING: $daemon_sim_netns $daemon_sim_loc/ovs-vswitchd-sim $daemon_sim_args $daemon_sim_log
+    pushd $DBDIR
+    $daemon_sim_netns $daemon_sim_loc/ovs-vswitchd-sim $daemon_sim_args $daemon_sim_log
+    popd
+
+    if (( "$STARTDELAY" > "0" )) ; then
+        sleep $STARTDELAY
+    fi
+
+    SWITCH_DAEMONS=""
+else
+    SWITCH_DAEMONS="bufmond"
+fi
 
 # Setup OpenSwitch environment variables
 source $SNAP/usr/sbin/openswitch-env
@@ -30,9 +70,6 @@ for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR $PASSWDDIR; do
     chmod 777 $i
 done
 
-# Create the network namespaces
-$SBINDIR/ops-init
-
 # Create the databases if they don't exist.
 /usr/bin/test -f $DBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
 /usr/bin/test -f $VTEPDBDIR/vtep.db || $BINDIR/ovsdb-tool create $VTEPDBDIR/vtep.db $SCHEMADIR/vtep.ovsschema
@@ -43,36 +80,17 @@ $SBINDIR/ops-init
 echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
 
-#
-# Appliance
-#
-if [ -f $OPTSBINDIR/ovsdb-server ] ; then
-    /usr/bin/test -d $SIMDBDIR || mkdir -p $SIMDBDIR
-    /usr/bin/test -f $SIMDBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $SIMDBDIR/ovsdb.db $OPTSCHEMADIR/vswitch.ovsschema
-    /usr/bin/test -f $SIMDBDIR/vtep.db || $BINDIR/ovsdb-tool create $SIMDBDIR/vtep.db $OPTSCHEMADIR/vtep.ovsschema
-    echo STARTING: $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
-    cd $SIMDBDIR && $OPTSBINDIR/ovsdb-server --remote=punix:$SIMDBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server-sim.pid $LOGDEFAULT $SIMDBDIR/ovsdb.db $SIMDBDIR/vtep.db
-fi
-
 if (( "$DBDELAY" > "0" )) ; then
     sleep $DBDELAY
 fi
 
-if [ -f $OPTSBINDIR/ovs-vswitchd-sim ] ; then
-    SWITCH_DAEMONS="ovs-vswitchd-sim ops-switchd"
-else
-    SWITCH_DAEMONS="ops-switchd bufmond"
-fi
-
 NOT_YET="ops_mgmtintfcfg"
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv ops-switchd $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
     daemon_log=$LOGDEFAULT
     daemon_db="--database=unix:$DBDIR/db.sock"
-    daemon_sim_args="--detach --no-chdir --pidfile=$SIMDBDIR/$i.pid"
-    daemon_sim_db="--database=unix:$SIMDBDIR/db.sock"
     daemonize="no"
     working_dir=$DBDIR
 
@@ -108,11 +126,6 @@ for i in $OPENSWITCH_DAEMONS ; do
         ops-switchd)
             daemon_args="$daemon_args $daemon_log --plugins-path=$SNAP/usr/lib/openvswitch/plugins"
             daemon_loc=$SBINDIR
-            ;;
-        ovs-vswitchd-sim)
-            daemon_args="$daemon_sim_args $daemon_log $daemon_sim_db"
-            daemon_loc=$OPTSBINDIR
-            working_dir=$SIMDBDIR
             ;;
         ops_mgmtintfcfg)
             daemon_args="--detach --pidfile=$PIDDIR/$i.pid $daemon_log $daemon_db"

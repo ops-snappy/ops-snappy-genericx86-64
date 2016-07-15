@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Setup OpenSwitch environment variables
+source $SNAP/usr/sbin/openswitch-common-env
 source $SNAP/usr/sbin/openswitch-env
 
 DBSVR="ovsdb-server.pid"
@@ -22,8 +23,15 @@ fi
 rm -f  $PIDDIR/*.pid
 rm -f  $CTLDIR/*.ctl
 
+# Delete the Appliance/Simulator
+source $SNAP/usr/sbin/openswitch-sim-env
+for i in $PIDDIR/*.pid ; do
+    pid=`cat $i`
+    kill -9 $pid
+done
+rm -f  $PIDDIR/*.pid
+rm -f  $CTLDIR/*.ctl
+
 # Delete namespaces. This avoids errors when restarting the snap.
-/sbin/ip netns delete swns > /dev/null 2>&1 || true
-/sbin/ip netns delete nonet > /dev/null 2>&1 || true
-
-
+ip netns delete swns > /dev/null 2>&1 || true
+ip netns delete nonet > /dev/null 2>&1 || true
