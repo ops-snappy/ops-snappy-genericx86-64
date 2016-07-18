@@ -133,6 +133,9 @@ for i in $OPENSWITCH_DAEMONS ; do
         ops-lldpd|ops-bgpd|ops-ospfd|ops-zebra)
             daemon_loc=$SBINDIR
             ;;
+        ops-lacpd)
+            daemon_args="$daemon_args $SYSLOGERR"
+            ;;
         *)  daemon_args="$daemon_args $daemon_log"
             ;;
     esac
