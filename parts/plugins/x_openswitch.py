@@ -89,6 +89,19 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
                     if pattern.match(fout):
                         self.run(['patchelf', '--set-interpreter', new_interpreter, path])
 
+    def pull(self):
+        source_type = sources._get_source_type_from_uri(self.options.source, ignore_errors=True)
+        if source_type:
+            super().pull()
+        else:
+            logger.info('OpenSwitch source dir is LOCAL')
+            if os.path.exists(self.sourcedir):
+                if not os.path.islink(self.sourcedir):
+                    shutil.rmtree(self.sourcedir)
+                else:
+                    os.remove(self.sourcedir)
+                os.symlink(self.options.source, self.sourcedir)
+
     def build(self):
 
         command = ['make']
