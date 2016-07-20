@@ -85,18 +85,26 @@ check_interfaces()
 {
     errors=0
     for i in :gsettings :network :network-bind :network-control :network-manager :network-observe; do
-	snap interfaces | grep openswitch | grep $i > /dev/null 2>&1
+	snap interfaces | grep $i\ | grep openswitch-appliance > /dev/null 2>&1
 	if [ $? -ne 0 ]; then
-	    echo "ERROR: Missing interface: $i"
+	    echo "ERROR: Missing interface: $i.  Fix using: "
+            echo "   snap connect openswitch-appliance$i ubuntu-core$i"
 	    errors=`expr $errors + 1`
 	fi
     done
     if [ $errors -eq 0 ]; then
 	echo "OK: All snap interfaces are in place"
+    fi
+}
+
+check_global_package()
+{
+    installed=$(dpkg -l $1) 
+    if [[ -z $installed ]] ; then
+        echo "ERROR: Missing system package: fix using 'sudo apt install $1'"
+	errors=`expr $errors + 1`
     else
-	echo "ERROR: 1 or more snap interfaces are missing. Fix using: "
-	echo "   snap connect openswitch-appliance:interface ubuntu-core:interface"
-	echo "   e.g.: snap connect openswitch-appliance:network ubuntu-core:network"
+        echo "OK: package '$1' is installed."
     fi
 }
 
@@ -105,3 +113,5 @@ check_eth0
 check_network_devices
 check_snap
 check_interfaces
+check_global_package ntp
+check_global_package libpam-radius-auth
