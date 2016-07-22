@@ -100,7 +100,7 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
                     shutil.rmtree(self.sourcedir)
                 else:
                     os.remove(self.sourcedir)
-                os.symlink(self.options.source, self.sourcedir)
+                os.symlink(os.path.realpath(self.options.source), self.sourcedir)
 
     def build(self):
 
