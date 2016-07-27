@@ -25,3 +25,4 @@ CFGDIR=$SNAP_DATA/etc/openswitch
 # Override the default install_path and data_path in OpenSwitch
 export OPENSWITCH_INSTALL_PATH=$SNAP
 export OPENSWITCH_DATA_PATH=$SNAP_DATA
+export PATH=/snap/openswitch-appliance/x1/sbin:/snap/openswitch-appliance/x1/usr/sbin:$PATH

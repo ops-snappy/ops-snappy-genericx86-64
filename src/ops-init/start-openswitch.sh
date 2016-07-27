@@ -6,6 +6,11 @@ DBDELAY=2
 # Slow down startup so can see what's happening easier
 STARTDELAY=0
 
+# Setup /var/run and /run
+/usr/bin/test -d $SNAP_DATA/run || mkdir -p $SNAP_DATA/run
+/usr/bin/test -d $SNAP_DATA/var || mkdir -p $SNAP_DATA/var
+/usr/bin/test -L $SNAP_DATA/var/run || ln -s $SNAP_DATA/run $SNAP_DATA/var/run
+
 # Create the network namespaces
 source $SNAP/usr/sbin/openswitch-env
 $SBINDIR/ops-init
@@ -62,20 +67,20 @@ adduser $EXTRA opsadmin ops_netop > /dev/null 2>&1 || true
 adduser $EXTRA opsadmin ovsdb-client > /dev/null 2>&1 || true
 
 # Make sure the directories exist
-for i in $DBDIR $VTEPDBDIR $PIDDIR $CTLDIR $CFGDIR $PASSWDDIR; do
+for i in $DBDIR $LCLDBDIR $PIDDIR $CTLDIR $CFGDIR $PASSWDDIR; do
     /usr/bin/test -d $i || mkdir -p $i
     chmod 777 $i
 done
 
 # Create the databases if they don't exist.
 /usr/bin/test -f $DBDIR/ovsdb.db || $BINDIR/ovsdb-tool create $DBDIR/ovsdb.db $SCHEMADIR/vswitch.ovsschema
-/usr/bin/test -f $VTEPDBDIR/vtep.db || $BINDIR/ovsdb-tool create $VTEPDBDIR/vtep.db $SCHEMADIR/vtep.ovsschema
-/usr/bin/test -f $DBDIR/dhcp_leases.db || $BINDIR/ovsdb-tool create $DBDIR/dhcp_leases.db $SCHEMADIR/dhcp_leases.ovsschema
-/usr/bin/test -f $DBDIR/config.db || $BINDIR/ovsdb-tool create $DBDIR/config.db $SCHEMADIR/configdb.ovsschema
+/usr/bin/test -f $LCLDBDIR/vtep.db || $BINDIR/ovsdb-tool create $LCLDBDIR/vtep.db $SCHEMADIR/vtep.ovsschema
+/usr/bin/test -f $LCLDBDIR/dhcp_leases.db || $BINDIR/ovsdb-tool create $LCLDBDIR/dhcp_leases.db $SCHEMADIR/dhcp_leases.ovsschema
+/usr/bin/test -f $LCLDBDIR/config.db || $BINDIR/ovsdb-tool create $LCLDBDIR/config.db $SCHEMADIR/configdb.ovsschema
 
 # OVSDB Server
-echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
-$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $DBDIR/config.db $DBDIR/dhcp_leases.db
+echo STARTING: $SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $LCLDBDIR/config.db $LCLDBDIR/dhcp_leases.db $LCLDBDIR/vtep.db
+$SBINDIR/ovsdb-server --remote=punix:$DBDIR/db.sock --detach --no-chdir --pidfile=$PIDDIR/ovsdb-server.pid $LOGDEFAULT $DBDIR/ovsdb.db $LCLDBDIR/config.db $LCLDBDIR/dhcp_leases.db $LCLDBDIR/vtep.db
 
 if (( "$DBDELAY" > "0" )) ; then
     sleep $DBDELAY

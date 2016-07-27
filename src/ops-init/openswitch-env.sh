@@ -8,9 +8,9 @@ source $SNAP/usr/sbin/openswitch-common-env
 # Required directories
 BINDIR=$SNAP/usr/bin
 SBINDIR=$SNAP/usr/sbin
-DBDIR=$SNAP_DATA/run/openvswitch
+DBDIR=$SNAP_DATA/var/run/openvswitch
+LCLDBDIR=$SNAP_DATA/var/local/openvswitch
 LOGDIR=$SNAP_DATA/var/log/openvswitch
-VTEPDBDIR=$SNAP_DATA/var/local/openvswitch
 PIDDIR=$DBDIR
 CTLDIR=$PIDDIR
 SCHEMADIR=$SNAP/usr/share/openvswitch
