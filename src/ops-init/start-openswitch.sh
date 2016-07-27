@@ -86,8 +86,8 @@ if (( "$DBDELAY" > "0" )) ; then
     sleep $DBDELAY
 fi
 
-NOT_YET="ops_mgmtintfcfg"
-OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv ops-switchd $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
+NOT_YET=""
+OPENSWITCH_DAEMONS="ops-sysd ops_cfgd snmpd ops-passwd-srv ops-switchd $SWITCH_DAEMONS ops-classifierd ops-fand ops-intfd ops-lacpd ops-ledd ops_mgmtintfcfg ops-pmd ops-powerd ops-tempd ops-portd ops-vland ops-stpd ops-l2macd ops_aaautilspamcfg ops-udpfwd restd ops-arpmgrd ops_ntpd ops-snmpd ops-lldpd ops-bgpd ops-ospfd ops-zebra"
 for i in $OPENSWITCH_DAEMONS ; do
     daemon_loc=$BINDIR
     daemon_args="--detach --no-chdir --pidfile=$PIDDIR/$i.pid"
