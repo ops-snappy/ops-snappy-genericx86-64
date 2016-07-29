@@ -7,15 +7,15 @@ confinement: devmode
 apps:
   start-openswitch:
     command: usr/sbin/start-openswitch
-    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
-    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
   vtysh:
     command: usr/sbin/start-vtysh
   shell:
     command: bin/bash
-    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
 
 parts:
 
