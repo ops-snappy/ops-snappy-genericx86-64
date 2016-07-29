@@ -108,6 +108,17 @@ check_global_package()
     fi
 }
 
+check_firewall()
+{
+    ufw status  | grep inactive > /dev/null 2>&1
+    
+    if [ $? -ne 0 ]; then
+        echo "OK: Firewall is enable."
+    else
+	echo "ERROR: You need to enable the firewall: fix using 'sudo ufw enable'"
+    fi
+}
+
 check_grub
 check_eth0
 check_network_devices
@@ -115,3 +126,4 @@ check_snap
 check_interfaces
 check_global_package ntp
 check_global_package libpam-radius-auth
+check_firewall
