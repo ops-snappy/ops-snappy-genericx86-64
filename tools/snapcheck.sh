@@ -84,7 +84,7 @@ check_snap()
 check_interfaces()
 {
     errors=0
-    for i in :gsettings :network :network-bind :network-control :network-manager :network-observe; do
+    for i in :gsettings :network :network-bind :network-control :network-manager :network-observe :firewall-control; do
 	snap interfaces | grep $i\ | grep openswitch-appliance > /dev/null 2>&1
 	if [ $? -ne 0 ]; then
 	    echo "ERROR: Missing interface: $i.  Fix using: "
