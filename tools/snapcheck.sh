@@ -113,9 +113,23 @@ check_firewall()
     ufw status  | grep inactive > /dev/null 2>&1
     
     if [ $? -ne 0 ]; then
-        echo "OK: Firewall is enable."
+        echo "OK: The firewall is enabled."
     else
 	echo "ERROR: You need to enable the firewall: fix using 'sudo ufw enable'"
+    fi
+}
+
+check_kernel_modules()
+{
+    lsmod | grep openvswitch > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+	echo "ERROR: Your /etc/modules file needs updating"
+	echo "   Please edit /etc/modules and add this line:"
+	echo '      openvswitch'
+	echo "   Then reboot";
+    else
+        echo "OK: The openvswitch kernel object is loaded."
     fi
 }
 
@@ -127,3 +141,4 @@ check_interfaces
 check_global_package ntp
 check_global_package libpam-radius-auth
 check_firewall
+check_kernel_modules
