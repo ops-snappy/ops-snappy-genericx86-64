@@ -22,7 +22,7 @@ parts:
   ops-init:
     plugin: make
     source: src/ops-init
-    stage-packages: [ binutils, file, strace, bash ]
+    stage-packages: [ binutils, file, strace, bash, iputils-ping, traceroute ]
 
   openswitch:
     plugin: x-openswitch
