@@ -1,5 +1,5 @@
 name: openswitch-genericx86-64
-version: 0.3.0-2
+version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for a genericx86-64 platform.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for genericx86-64 platform.
 confinement: devmode

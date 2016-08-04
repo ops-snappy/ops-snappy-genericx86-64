@@ -1,5 +1,5 @@
 name: openswitch-alphanetworks-snx-60a0-486f
-version: 0.3.0-2
+version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for an Alphanetworks SNX-60A0-486F platform.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F platform.
 

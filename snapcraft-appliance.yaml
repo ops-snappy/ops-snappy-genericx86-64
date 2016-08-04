@@ -1,5 +1,5 @@
 name: openswitch-appliance
-version: 0.3.0-rc0-1
+version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for the Appliance.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) Appliance targeted at an Oracle VirtualBox running Ubuntu-Core with one management interface and seven "front-panel" network adapters.
 confinement: devmode

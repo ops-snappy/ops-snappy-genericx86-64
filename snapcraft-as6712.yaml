@@ -1,5 +1,5 @@
 name: openswitch-as6712
-version: 0.3.0-2
+version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for an as6712 host.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Accton as6712 host.
 

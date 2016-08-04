@@ -1,5 +1,5 @@
 name: openswitch-as6712-no-asic
-version: 0.3.0-2
+version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for an as6712 host with a simulated ASIC.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the as6712 host and a simulated ASIC.
 
