@@ -6,4 +6,5 @@
 --exclude=/parts/*
 --exclude=/stage/
 --exclude=/snap/
+--exclude=/prime/
 --exclude=*.snap
