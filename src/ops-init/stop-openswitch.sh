@@ -37,8 +37,7 @@ ip netns delete nonet > /dev/null 2>&1 || true
 
 # The management interface daemon, ops_mgmtintfcfg, messes with
 # /etc/resolv.conf and causes the system to lose access to DNS. Therefore
-# when stopping the SNAP run DHCP again on the management port to enable
+# when stopping the SNAP run resolvconf again on the management port to enable
 # the eth0 management port to be fully used again after the SNAP has
 # exited.
-dhclient -r eth0
-dhclient eth0
+/sbin/resolvconf -u > /dev/null 2>&1
