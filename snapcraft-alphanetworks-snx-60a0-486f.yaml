@@ -1,7 +1,7 @@
 name: openswitch-alphanetworks-snx-60a0-486f
 version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for an Alphanetworks SNX-60A0-486F platform.
-description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F platform.
+description: A standalone version of the OpenSwitch NOS (www.openswitch.net) Appliance targeted at a 48xSFP+ 6xQSFP28.
 confinement: devmode
 
 apps:
@@ -30,13 +30,13 @@ parts:
   ops-init:
     plugin: make
     source: src/ops-init
-    stage-packages: [ binutils, file, strace, bash, iputils-ping, traceroute ]
+    stage-packages: [ binutils, file, strace, bash ]
 
   openswitch:
     plugin: x-openswitch
     source: https://github.com/ops-snappy/ops-build.git
     platform: alphanetworks-snx-60a0-486f
-    skip-native-build: true
+    # skip-native-build: true
     linuxheaders: /usr/src/linux-headers-4.4.0-34-generic
     cdppart: opennsl
     stage-packages: [ resolvconf ]
