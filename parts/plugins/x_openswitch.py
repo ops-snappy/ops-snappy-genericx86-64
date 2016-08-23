@@ -146,12 +146,14 @@ class XOpenSwitchPlugin(snapcraft.BasePlugin):
         """Must rebuild the opennsl for the target system
         """
         if self.cdpdir != None:
-                self.run(['make', 'host-opennsl', 'CDPDIR=' + self.cdpdir, 'LINUX_SRC=' + self.headersdir, 'LINUX_KBUILD=' + self.headersdir])
+            self.cdpsrc = glob.glob(self.cdpdir + '/opennsl-*-cdp-*')[0]
+            logger.info('Building OpenNSL modules from ' + self.cdpsrc)
+            self.run(['make', 'install-snappy-opennsl', 'DESTDIR=' + self.installdir, 'CDPDIR=' + self.cdpsrc, 'LINUX_SRC=' + self.headersdir, 'LINUX_KBUILD=' + self.headersdir])
 
         """ Since we are pre-building, just have to install into installdir
         """
         if self.cdpdir != None:
-            self.run(command + ['install-snappy', 'DESTDIR=' + self.installdir, 'CDPDIR=' + self.cdpdir])
+            self.run(command + ['install-snappy', 'DESTDIR=' + self.installdir, 'CDPDIR=' + self.cdpsrc])
         else:
             self.run(command + ['install-snappy', 'DESTDIR=' + self.installdir])
 

@@ -2,50 +2,42 @@ name: openswitch-alphanetworks-snx-60a0-486f
 version: 0.3.0-rc0-5
 summary: OpenSwitch NOS for an Alphanetworks SNX-60A0-486F platform.
 description: A standalone version of the OpenSwitch NOS (www.openswitch.net) for the Alphanetworks SNX-60A0-486F platform.
+confinement: devmode
 
 apps:
   start-openswitch:
     command: usr/sbin/start-openswitch
-    plugs: [ networking ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
   stop-openswitch:
     command: usr/sbin/stop-openswitch
-    plugs: [ networking ]
-  ovs-appctl:
-    command: usr/bin/ovs-appctl
-    plugs: [ networking ]
-  ovsdb-tool:
-    command: usr/bin/ovsdb-tool
-    plugs: [ networking ]
-  ovsdb-client:
-    command: usr/bin/ovsdb-client
-    plugs: [ networking ]
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
+  vtysh:
+    command: usr/sbin/start-vtysh
   shell:
     command: bin/bash
-    plugs: [ networking ]
-
-plugs:
-# TODO - come up with a better security profile for the daemons.
-  networking:
-    interface: old-security
-    security-template: unconfined
+    plugs: [ network, network-control, network-bind, network-manager, network-observe, gsettings, firewall-control ]
 
 parts:
 
   opennsl:
-    plugin: copy
-    source: https://archive.openswitch.net/opennsl/opennsl-3.1.0.9-cdp-as6712-c1e81c5.tar.bz2
-    files:
-      '*': '.'
+    plugin: x-ftpdump
+    source: ftp://bldecos-1.extremenetworks.com/opennsl-3.1.0.12-cdp-alphanetworks-snx-60a0-486f-amd64.tar.bz2
+    stage:
+      - -opennsl-3.1.0.12-cdp-alphanetworks-snx-60a0-486f/
+    snap:
+      - -opennsl-3.1.0.12-cdp-alphanetworks-snx-60a0-486f/
 
   ops-init:
     plugin: make
     source: src/ops-init
+    stage-packages: [ binutils, file, strace, bash, iputils-ping, traceroute ]
 
   openswitch:
     plugin: x-openswitch
     source: https://github.com/ops-snappy/ops-build.git
     platform: alphanetworks-snx-60a0-486f
-    linuxheaders: /usr/src/linux-headers-4.4.0-22-generic
+    skip-native-build: true
+    linuxheaders: /usr/src/linux-headers-4.4.0-34-generic
     cdppart: opennsl
-    stage-packages: [ binutils, file, strace, gdb, bash ]
-    after: [ opennsl ]
+    stage-packages: [ resolvconf ]
+    after: [ ops-init, opennsl ]
